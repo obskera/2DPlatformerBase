@@ -18,6 +18,7 @@ var state = MOVE
 var jumps_available = 1
 var buffered_jump = false
 var coyote_jump = false
+var on_door = false
 
 onready var animatedSprite: = $AnimatedSprite
 onready var ladderCheck: = $LadderCheck
@@ -30,6 +31,7 @@ func _ready():
 	#cast for autocompletion
 	## moveData = moveData as PlayerMovementData
 	animatedSprite.frames = load ("res://Player/PlayerGreenSkin.tres")
+	
 #default fps is 60fps, so delta is 1/60th
 func _physics_process(delta):
 	var input = Vector2.ZERO
@@ -62,13 +64,13 @@ func move_state(input, delta):
 		#$AnimatedSprite.flip_h = true
 		
 		
-	if not is_on_floor() and Input.is_action_just_pressed("ui_up"): 
+	if !on_door and (not is_on_floor() and Input.is_action_just_pressed("ui_up")): 
 		if jumps_available > 0:
 			jump_sound()
 			velocity.y = moveData.JUMP_FORCE
 			jumps_available -= 1
 	#	else: fast_fall(delta)
-	if is_on_floor() or coyote_jump:
+	if !on_door and (is_on_floor() or coyote_jump):
 		if Input.is_action_just_pressed("ui_up") and not ladderCheck.is_colliding():
 			if jumps_available > 1:
 				jump_sound()
@@ -81,7 +83,7 @@ func move_state(input, delta):
 				velocity.y += moveData.ADDITIONAL_FALL_GRAVITY * delta
 				
 		
-	if Input.is_action_pressed("ui_up") and not is_on_floor():
+	if !on_door and (Input.is_action_pressed("ui_up") and not is_on_floor()):
 		buffered_jump = true
 		#jumpBufferTimer.start()
 	
